@@ -9,10 +9,19 @@
 # team lead, and anything the team lead did was invisible to admin.
 # That is fixed by having exactly one connection module, imported
 # everywhere.
+#
+# The MONGO_URL is read from environment variables so it works both
+# locally (mongodb://localhost:27017/) and in production on Render
+# with MongoDB Atlas (mongodb+srv://...).
 
+import os
+
+from dotenv import load_dotenv
 from pymongo import MongoClient
 
-MONGO_URL = "mongodb://localhost:27017/"
+load_dotenv()
+
+MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017/")
 
 client = MongoClient(MONGO_URL)
 db = client["hospital_support"]

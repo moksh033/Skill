@@ -229,6 +229,12 @@ def create_audit_log(log: AuditLogRecord):
     return {"message": "Audit log created successfully"}
 
 
+@router.get("/audit-logs")
+def get_audit_logs():
+    logs = list(audit_collection.find({}, {"_id": 0}).sort("created_at", -1).limit(100))
+    return {"count": len(logs), "audit_logs": logs}
+
+
 # ============================================================
 # REQUESTS (admin-level view/control)
 # ============================================================
