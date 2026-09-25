@@ -7,11 +7,11 @@
 import os
 from datetime import datetime, timedelta, timezone
 
+import bcrypt
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from pydantic import BaseModel
 
 load_dotenv()
@@ -20,9 +20,6 @@ load_dotenv()
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "super-secret-key-change-in-production-please")
 ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
-
-# ---- Password hashing ----
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # ---- OAuth2 scheme (reads Bearer token from Authorization header) ----
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
@@ -58,11 +55,19 @@ class RegisterRequest(BaseModel):
 
 # ---- Utility functions ----
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    pwd_bytes = password.encode("utf-8")
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(pwd_bytes, salt).decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        return bcrypt.checkpw(
+            plain_password.encode("utf-8"),
+            hashed_password.encode("utf-8")
+        )
+    except Exception:
+        return False
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:

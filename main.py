@@ -72,7 +72,6 @@ def home():
 # Sample data
 # ------------------------------------------------------------
 def initialize_sample_data():
-
     # Users — now include hashed passwords so JWT login works out of the box.
     # Default password for all seeded users is "password123"
     default_password = hash_password("password123")
@@ -229,4 +228,16 @@ def initialize_sample_data():
         )
 
 
-initialize_sample_data()
+@app.on_event("startup")
+def on_startup():
+    try:
+        initialize_sample_data()
+        print("Database initialized with sample data successfully.")
+    except Exception as e:
+        print(f"Warning: Sample data initialization skipped or failed: {e}")
+
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.getenv("PORT", 10000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
