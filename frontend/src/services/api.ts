@@ -16,8 +16,7 @@ import { authService } from './auth';
 // API BASE URL
 // ============================================================
 // In development (Vite dev server), the proxy rewrites /api → localhost:8000
-// In production (Netlify), we call the Render backend directly via env var
-const rawBase = ((import.meta.env.VITE_API_URL as string | undefined) || '/api').trim();
+const rawBase = ((import.meta.env.VITE_API_URL as string | undefined) || 'https://hospitaldesk.onrender.com').trim();
 const API_BASE = rawBase.replace(/\/+$/, '');
 
 // ============================================================
